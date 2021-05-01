@@ -1,0 +1,17 @@
+@startuml
+actor client
+control systeme
+database database
+
+client -> systeme : DELETE /api/user/
+systeme -> systeme : Deserialize Data
+
+alt data is valid
+systeme -> database : delete user
+
+systeme -> client : return code 200 ok !
+else
+systeme -> client : Return error 400
+end
+
+@enduml

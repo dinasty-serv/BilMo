@@ -1,0 +1,18 @@
+@startuml
+actor client
+control systeme
+database database
+
+client -> systeme : GET /api/products
+systeme -> systeme : Deserialize Data
+
+alt data is valid
+systeme -> database : get Product list
+database -> systeme:  return all products
+systeme -> systeme : Serialize Data
+systeme -> client : return products list
+else
+systeme -> client : Return error 400
+end
+
+@enduml

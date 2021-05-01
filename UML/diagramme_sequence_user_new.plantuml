@@ -1,0 +1,17 @@
+@startuml
+actor client
+control systeme
+database database
+
+client -> systeme : POST /api/user/
+systeme -> systeme : Deserialize Data
+
+alt data is valid
+systeme -> database : add new user
+
+systeme -> client : return code 200 ok !
+else
+systeme -> client : Return error 400
+end
+
+@enduml
