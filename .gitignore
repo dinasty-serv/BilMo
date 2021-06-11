@@ -11,3 +11,6 @@
 ###< symfony/framework-bundle ###
 .idea
 plantUML
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
