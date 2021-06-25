@@ -14,13 +14,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserController extends AbstractController
 {
     /**
-     * * @Route("/api/user/list",
+     * * @Route("/api/users/",
      *     name="api_users_list",
      *     methods={"GET"})
      * @param UserRepository $userRepository
@@ -50,6 +51,8 @@ class UserController extends AbstractController
      */
     public function item(User $user, SerializerInterface $serializer): JsonResponse
     {
+        $this->denyAccessUnlessGranted('idem', $user);
+
         return new JsonResponse(
             $serializer->serialize($user, "json", ["groups" => "get"]),
             JsonResponse::HTTP_OK,
@@ -59,7 +62,7 @@ class UserController extends AbstractController
 
     }
     /**
-     * @Route("/api/user/edit/{id}", name="api_user_edit", methods={"PUT"})
+     * @Route("/api/user/{id}", name="api_user_edit", methods={"PUT"})
      * @param User $user
      * @param Request $request
      * @param EntityManagerInterface $entityManager
@@ -76,10 +79,11 @@ class UserController extends AbstractController
         UrlGeneratorInterface $urlGenerator,
         ValidatorInterface $validator
     ): JsonResponse {
-        $data = $serializer->deserialize($request->getContent(), User::class, 'json');
-        $user->setUsername($data->getUsername());
-        $user->setEmail($data->getEmail());
-        $errors = $validator->validate($user);
+        $this->denyAccessUnlessGranted('edit', $user);
+
+        $data = $serializer->deserialize($request->getContent(), User::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $user]);
+
+        $errors = $validator->validate($data);
 
         if ($errors->count() > 0) {
             return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
@@ -87,16 +91,15 @@ class UserController extends AbstractController
 
         $entityManager->persist($user);
         $entityManager->flush();
-
         return new JsonResponse(
             $serializer->serialize($user, "json", ["groups" => "get"]),
-            JsonResponse::HTTP_CREATED,
+            JsonResponse::HTTP_NO_CONTENT,
             ["Location" => $urlGenerator->generate("api_users_detail", ["id" => $user->getId()])],
             true
         );
     }
     /**
-     * @Route("/api/user/add", name="api_user_post", methods={"POST"})
+     * @Route("/api/user", name="api_user_post", methods={"POST"})
      * @param Request $request
      * @param EntityManagerInterface $entityManager
      * @param SerializerInterface $serializer
@@ -112,7 +115,7 @@ class UserController extends AbstractController
         ValidatorInterface $validator
     ): JsonResponse {
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
-        $user->setClient($entityManager->getRepository(Client::class)->findOneBy([]));
+        $user->setClient($this->getUser());
         $errors = $validator->validate($user);
 
         if ($errors->count() > 0) {
@@ -129,17 +132,19 @@ class UserController extends AbstractController
             true
         );
     }
+
     /**
-     * @Route("/api/user/delete/{id}", name="api_user_delete", methods={"DELETE"})
-     * @param User $post
+     * @Route("/api/user/{id}", name="api_user_delete", methods={"DELETE"})
+     * @param User $user
      * @param EntityManagerInterface $entityManager
      * @return JsonResponse
      */
     public function delete(
-        User $post,
+        User $user,
         EntityManagerInterface $entityManager
     ): JsonResponse {
-        $entityManager->remove($post);
+        $this->denyAccessUnlessGranted('delete', $user);
+        $entityManager->remove($user);
         $entityManager->flush();
 
         return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
