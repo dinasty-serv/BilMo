@@ -1,0 +1,20 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Bilmo
+            description: Bilmo V1
+            version: 1.0.0
+        components:
+            securitySchemes:
+                Bearer:
+                    type: http
+                    scheme: bearer
+                    bearerFormat: JWT
+            security:
+                - Bearer: [ ]
+
+    areas:
+        path_patterns: # an array of regexps
+            - ^/api(?!/doc$)
+        host_patterns:
+            - ^api\.

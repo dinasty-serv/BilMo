@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use OpenApi\Annotations as OA;
 
 /**
  * @ORM\Entity(repositoryClass=ClientRepository::class)
@@ -20,6 +21,7 @@ class Client implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @OA\Property(description="The unique identifier of the user.")
      */
     private $id;
 
@@ -30,18 +32,21 @@ class Client implements UserInterface, PasswordAuthenticatedUserInterface
      *     message = "The email '{{ value }}' is not a valid email."
      * )
      * @Assert\Unique
+     * @OA\Property(description="Email")
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
+     * @OA\Property(description="Password")
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank
+     * @OA\Property(description="Username")
      */
     private $username;
     /**

@@ -10,6 +10,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
+/**
+ * Open API
+ */
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
+
 class ProductController extends AbstractController
 {
 
@@ -18,7 +25,25 @@ class ProductController extends AbstractController
      * @param int|null $page
      * @param ProductRepository $productRepository
      * @param SerializerInterface $serializer
+     *
      * @return JsonResponse
+     *      * @OA\Response(
+     *     response=200,
+     *     description="Returns the products list",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=Product::class, groups={"getlist"}))
+     *     )
+     * )
+     * @OA\Parameter(
+     *     name="page",
+     *     in="query",
+     *     description="Page",
+     *     @OA\Schema(type="int")
+     * )
+     * @OA\Tag(name="products")
+     * @Security(name="Bearer")
+     *
      */
     public function list(
         int $page = null,
