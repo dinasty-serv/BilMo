@@ -4,7 +4,6 @@
 namespace App\Controller;
 
 
-use App\Entity\Client;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -51,7 +50,7 @@ class UserController extends AbstractController
      */
     public function item(User $user, SerializerInterface $serializer): JsonResponse
     {
-        $this->denyAccessUnlessGranted('idem', $user);
+        $this->denyAccessUnlessGranted('check', $user);
 
         return new JsonResponse(
             $serializer->serialize($user, "json", ["groups" => "get"]),
@@ -79,7 +78,7 @@ class UserController extends AbstractController
         UrlGeneratorInterface $urlGenerator,
         ValidatorInterface $validator
     ): JsonResponse {
-        $this->denyAccessUnlessGranted('edit', $user);
+        $this->denyAccessUnlessGranted('check', $user);
 
         $data = $serializer->deserialize($request->getContent(), User::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $user]);
 
@@ -143,7 +142,7 @@ class UserController extends AbstractController
         User $user,
         EntityManagerInterface $entityManager
     ): JsonResponse {
-        $this->denyAccessUnlessGranted('delete', $user);
+        $this->denyAccessUnlessGranted('check', $user);
         $entityManager->remove($user);
         $entityManager->flush();
 

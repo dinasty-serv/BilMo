@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Repository\ProductRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,20 +14,41 @@ class ProductController extends AbstractController
 {
 
     /**
-     * @Route("/api/products", name="api_product_list", methods={"GET"})
+     * @Route("/api/products/{page}", name="api_product_list", methods={"GET"}, defaults={"page"=null})
+     * @param int|null $page
      * @param ProductRepository $productRepository
      * @param SerializerInterface $serializer
      * @return JsonResponse
      */
-    public function list(ProductRepository $productRepository, SerializerInterface $serializer): JsonResponse
+    public function list(
+        int $page = null,
+        ProductRepository $productRepository,
+        SerializerInterface $serializer
+
+    ): JsonResponse
     {
+        $max = 10;
+
+        /**
+         * Fix number page default
+         */
+        if (!$page){
+            $page = 1;
+        }else{
+            $page = $page +1;
+        }
+
+        $products = $productRepository->createQueryBuilder('a')
+            ->setFirstResult(($page*$max)-$max)
+            ->setMaxResults($max)
+        ->orderBy('a.id', 'ASC');
+
         return new JsonResponse(
-            $serializer->serialize($productRepository->findAll(), "json", ["groups" => "getlist"]),
+            $serializer->serialize($products->getQuery()->getResult(), "json", ["groups" => "getlist"]),
             JsonResponse::HTTP_OK,
             [],
             true
         );
-
     }
 
     /**
@@ -45,7 +65,5 @@ class ProductController extends AbstractController
             [],
             true
         );
-
-
     }
 }
