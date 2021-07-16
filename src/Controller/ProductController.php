@@ -7,7 +7,6 @@ use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -16,6 +15,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
+use Symfony\Component\Routing\Annotation\Route;
 
 class ProductController extends AbstractController
 {
@@ -25,6 +25,11 @@ class ProductController extends AbstractController
      * @param int|null $page
      * @param ProductRepository $productRepository
      * @param SerializerInterface $serializer
+     *
+     * @OA\Info (
+     *     title="Get products",
+     *     description="Get list products"
+     * )
      *
      * @return JsonResponse
      *      * @OA\Response(
@@ -43,6 +48,7 @@ class ProductController extends AbstractController
      * )
      * @OA\Tag(name="products")
      * @Security(name="Bearer")
+     *
      *
      */
     public function list(
@@ -77,7 +83,7 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @Route("/api/product/{id}",
+     * @Route("/api/products/{id}",
      *     name="api_product_detail",
      *     methods={"GET"},
      *     requirements={"id"="\d+"})
