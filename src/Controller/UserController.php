@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,17 +17,32 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Annotations as OA;
 
 class UserController extends AbstractController
 {
     /**
-     * * @Route("/api/users/",
+     * @Route("/api/users/",
      *     name="api_users_list",
      *     methods={"GET"})
      * @param UserRepository $userRepository
      * @param SerializerInterface $serializer
+     *
      * @return Response
+     *     * @return JsonResponse
+     *      * @OA\Response(
+     *     response=200,
+     *     description="Returns the list users",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class, groups={"get"}))
+     *     )
+     * )
+     * @OA\Tag(name="Users")
+     * @Security(name="Bearer")
      */
+
     public function list(UserRepository $userRepository, SerializerInterface $serializer): Response
     {
 
@@ -47,6 +63,19 @@ class UserController extends AbstractController
      * @param User $user
      * @param SerializerInterface $serializer
      * @return JsonResponse
+     *
+     * @return Response
+     *     * @return JsonResponse
+     *      * @OA\Response(
+     *     response=200,
+     *     description="Return the user détails",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class, groups={"get"}))
+     *     )
+     * )
+     * @OA\Tag(name="Users")
+     * @Security(name="Bearer")
      */
     public function item(User $user, SerializerInterface $serializer): JsonResponse
     {
@@ -68,7 +97,26 @@ class UserController extends AbstractController
      * @param SerializerInterface $serializer
      * @param UrlGeneratorInterface $urlGenerator
      * @param ValidatorInterface $validator
+     *
      * @return JsonResponse
+     *      *@OA\Response(
+     *     response=200,
+     *     description="Put data into User object",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class, groups={"getlist"}))
+     *     )
+     * )
+     * @OA\Parameter(
+     *     name="user",
+     *     in="query",
+     *     description="User ID",
+     *     @OA\Schema(type="int")
+     * )
+     * @OA\Tag(name="Users")
+     * @Security(name="Bearer")
+     *
+     *
      */
     public function put(
         User $user,
@@ -104,7 +152,22 @@ class UserController extends AbstractController
      * @param SerializerInterface $serializer
      * @param UrlGeneratorInterface $urlGenerator
      * @param ValidatorInterface $validator
-     * @return JsonResponse
+     *
+     *  * @return JsonResponse
+     *      *@OA\Response(
+     *     response=200,
+     *     description="Return User object created",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class, groups={"get"}))
+     *     )
+     *
+     * )
+     *
+     * @OA\Tag(name="Users")
+     * @Security(name="Bearer")
+     *
+     *
      */
     public function post(
         Request $request,
@@ -136,7 +199,26 @@ class UserController extends AbstractController
      * @Route("/api/user/{id}", name="api_user_delete", methods={"DELETE"})
      * @param User $user
      * @param EntityManagerInterface $entityManager
+     *
      * @return JsonResponse
+     *      *@OA\Response(
+     *     response=200,
+     *     description="No content",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class, groups={"getlist"}))
+     *     )
+     * )
+     * @OA\Parameter(
+     *     name="user",
+     *     in="query",
+     *     description="User ID",
+     *     @OA\Schema(type="int")
+     * )
+     * @OA\Tag(name="Users")
+     * @Security(name="Bearer")
+     *
+     *
      */
     public function delete(
         User $user,

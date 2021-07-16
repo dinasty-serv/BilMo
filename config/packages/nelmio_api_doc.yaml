@@ -1,11 +1,18 @@
 nelmio_api_doc:
+    areas:
+        path_patterns: # an array of regexps
+            - ^/api(?!/doc$)
+
     documentation:
         info:
             title: BilMo API
             description: This is an awesome app!
             version: 1.0.0
-    areas:
-        path_patterns: # an array of regexps
-            - ^/api(?!/doc$)
-        host_patterns:
-            - ^api\.
+        components:
+            securitySchemes:
+                Bearer:
+                    type: http
+                    scheme: bearer
+                    bearerFormat: JWT
+        security:
+            - Bearer: [ ]

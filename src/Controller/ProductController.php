@@ -8,6 +8,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Routing\Annotation\Route;
+
 
 /**
  * Open API
@@ -15,7 +17,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
-use Symfony\Component\Routing\Annotation\Route;
 
 class ProductController extends AbstractController
 {
@@ -25,11 +26,6 @@ class ProductController extends AbstractController
      * @param int|null $page
      * @param ProductRepository $productRepository
      * @param SerializerInterface $serializer
-     *
-     * @OA\Info (
-     *     title="Get products",
-     *     description="Get list products"
-     * )
      *
      * @return JsonResponse
      *      * @OA\Response(
@@ -46,7 +42,7 @@ class ProductController extends AbstractController
      *     description="Page",
      *     @OA\Schema(type="int")
      * )
-     * @OA\Tag(name="products")
+     * @OA\Tag(name="Products")
      * @Security(name="Bearer")
      *
      *
@@ -87,8 +83,26 @@ class ProductController extends AbstractController
      *     name="api_product_detail",
      *     methods={"GET"},
      *     requirements={"id"="\d+"})
+     *
+     * @return JsonResponse
+     *      * @OA\Response(
+     *     response=200,
+     *     description="Returns the product details",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=Product::class, groups={"get"}))
+     *     )
+     * )
+     * @OA\Parameter(
+     *     name="id",
+     *     in="query",
+     *     description="Product ID",
+     *     @OA\Schema(type="int")
+     * )
+     * @OA\Tag(name="Products")
+     * @Security(name="Bearer")
      */
-    public function product(Product $product, SerializerInterface $serializer):Response
+    public function item(Product $product, SerializerInterface $serializer):Response
     {
         return new JsonResponse(
             $serializer->serialize($product, "json", ["groups" => "get"]),
