@@ -14,8 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use Symfony\Component\Serializer\SerializerInterface;
+use JMS\Serializer\SerializerInterface as SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
@@ -29,9 +28,8 @@ class UserController extends AbstractController
      * @param UserRepository $userRepository
      * @param SerializerInterface $serializer
      *
-     * @return Response
-     *     * @return JsonResponse
-     *      * @OA\Response(
+     * @return JsonResponse
+     *      @OA\Response(
      *     response=200,
      *     description="Returns the list users",
      *     @OA\JsonContent(
@@ -47,15 +45,15 @@ class UserController extends AbstractController
     {
 
         return new JsonResponse(
-            $serializer->serialize($userRepository->findBy(['client' => $this->getUser()]), "json", ["groups" => "getlist"]),
-            JsonResponse::HTTP_OK,
+            $serializer->serialize($userRepository->findBy(['client' => $this->getUser()]), "json"),
+            Response::HTTP_OK,
             [],
             true
         );
 
     }
     /**
-     * @Route("/api/user/{id}",
+     * @Route("/api/users/{id}",
      *     name="api_users_detail",
      *     methods={"GET"},
      *     requirements={"id"="\d+"})
@@ -65,14 +63,11 @@ class UserController extends AbstractController
      * @return JsonResponse
      *
      * @return Response
-     *     * @return JsonResponse
-     *      * @OA\Response(
+     *     @return JsonResponse
+     *      @OA\Response(
      *     response=200,
      *     description="Return the user détails",
-     *     @OA\JsonContent(
-     *        type="array",
-     *        @OA\Items(ref=@Model(type=User::class, groups={"get"}))
-     *     )
+     *     @Model(type=User::class, groups={"get"})
      * )
      * @OA\Tag(name="Users")
      * @Security(name="Bearer")
@@ -82,15 +77,16 @@ class UserController extends AbstractController
         $this->denyAccessUnlessGranted('check', $user);
 
         return new JsonResponse(
-            $serializer->serialize($user, "json", ["groups" => "get"]),
+            $serializer->serialize($user, "json"),
             JsonResponse::HTTP_OK,
             [],
             true
         );
 
     }
+
     /**
-     * @Route("/api/user/{id}", name="api_user_edit", methods={"PUT"})
+     * @Route("/api/users/{id}", name="api_user_edit", methods={"PUT"})
      * @param User $user
      * @param Request $request
      * @param EntityManagerInterface $entityManager
@@ -99,24 +95,25 @@ class UserController extends AbstractController
      * @param ValidatorInterface $validator
      *
      * @return JsonResponse
-     *      *@OA\Response(
+     * @OA\Response(
      *     response=200,
-     *     description="Put data into User object",
-     *     @OA\JsonContent(
-     *        type="array",
-     *        @OA\Items(ref=@Model(type=User::class, groups={"getlist"}))
-     *     )
+     *     description="Update User object",
+     *     @Model(type=User::class, groups={"get"})
+     * )
+     *@OA\Parameter(
+     *     name="username",
+     *     in="path",
+     *     description="Username",
+     *     @OA\Schema(type="string")
      * )
      * @OA\Parameter(
-     *     name="user",
-     *     in="query",
-     *     description="User ID",
-     *     @OA\Schema(type="int")
+     *     name="email",
+     *     in="path",
+     *     description="Email",
+     *     @OA\Schema(type="string")
      * )
      * @OA\Tag(name="Users")
      * @Security(name="Bearer")
-     *
-     *
      */
     public function put(
         User $user,
@@ -127,47 +124,52 @@ class UserController extends AbstractController
         ValidatorInterface $validator
     ): JsonResponse {
         $this->denyAccessUnlessGranted('check', $user);
-
-        $data = $serializer->deserialize($request->getContent(), User::class, 'json', [AbstractNormalizer::OBJECT_TO_POPULATE => $user]);
-
+        var_dump($request->getContent());
+        die();
+        $data = $serializer->deserialize($request->getContent(), User::class, 'json');
         $errors = $validator->validate($data);
-
         if ($errors->count() > 0) {
-            return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+            return new JsonResponse($serializer->serialize($errors, 'json'), Response::HTTP_BAD_REQUEST, [], true);
         }
 
         $entityManager->persist($user);
         $entityManager->flush();
         return new JsonResponse(
-            $serializer->serialize($user, "json", ["groups" => "get"]),
-            JsonResponse::HTTP_NO_CONTENT,
+            $serializer->serialize($user, "json"),
+            Response::HTTP_NO_CONTENT,
             ["Location" => $urlGenerator->generate("api_users_detail", ["id" => $user->getId()])],
             true
         );
     }
     /**
-     * @Route("/api/user", name="api_user_post", methods={"POST"})
+     * @Route("/api/users", name="api_user_post", methods={"POST"})
      * @param Request $request
      * @param EntityManagerInterface $entityManager
      * @param SerializerInterface $serializer
      * @param UrlGeneratorInterface $urlGenerator
      * @param ValidatorInterface $validator
      *
-     *  * @return JsonResponse
-     *      *@OA\Response(
+     *   @return JsonResponse
+     *      @OA\Response(
      *     response=200,
      *     description="Return User object created",
-     *     @OA\JsonContent(
-     *        type="array",
-     *        @OA\Items(ref=@Model(type=User::class, groups={"get"}))
-     *     )
+     *     @Model(type=User::class, groups={"get"}))
      *
      * )
-     *
+     *@OA\Parameter(
+     *     name="username",
+     *     in="path",
+     *     description="Username",
+     *     @OA\Schema(type="string")
+     * )
+     * @OA\Parameter(
+     *     name="email",
+     *     in="path",
+     *     description="Email",
+     *     @OA\Schema(type="string")
+     * )
      * @OA\Tag(name="Users")
      * @Security(name="Bearer")
-     *
-     *
      */
     public function post(
         Request $request,
@@ -181,14 +183,14 @@ class UserController extends AbstractController
         $errors = $validator->validate($user);
 
         if ($errors->count() > 0) {
-            return new JsonResponse($serializer->serialize($errors, 'json'), JsonResponse::HTTP_BAD_REQUEST, [], true);
+            return new JsonResponse($serializer->serialize($errors, 'json'), Response::HTTP_BAD_REQUEST, [], true);
         }
 
         $entityManager->persist($user);
         $entityManager->flush();
 
         return new JsonResponse(
-            $serializer->serialize($user, "json", ["groups" => "get"]),
+            $serializer->serialize($user, "json"),
             JsonResponse::HTTP_CREATED,
             ["Location" => $urlGenerator->generate("api_users_detail", ["id" => $user->getId()])],
             true
@@ -196,29 +198,18 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/api/user/{id}", name="api_user_delete", methods={"DELETE"})
+     * @Route("/api/users/{id}", name="api_user_delete", methods={"DELETE"})
      * @param User $user
      * @param EntityManagerInterface $entityManager
      *
      * @return JsonResponse
-     *      *@OA\Response(
+     *     @OA\Response(
      *     response=200,
      *     description="No content",
-     *     @OA\JsonContent(
-     *        type="array",
-     *        @OA\Items(ref=@Model(type=User::class, groups={"getlist"}))
-     *     )
-     * )
-     * @OA\Parameter(
-     *     name="user",
-     *     in="query",
-     *     description="User ID",
-     *     @OA\Schema(type="int")
+     *
      * )
      * @OA\Tag(name="Users")
      * @Security(name="Bearer")
-     *
-     *
      */
     public function delete(
         User $user,
@@ -228,6 +219,6 @@ class UserController extends AbstractController
         $entityManager->remove($user);
         $entityManager->flush();
 
-        return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 }

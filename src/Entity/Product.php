@@ -7,8 +7,18 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use OpenApi\Annotations as OA;
+use Hateoas\Configuration\Annotation as Hateoas;
 /**
  * @ORM\Entity(repositoryClass=ProductRepository::class)
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "api_product_detail",
+ *           parameters = { "id" = "expr(object.getId())" },
+ *           absolute = true
+ *      )
+ * )
+ *
  */
 class Product
 {
