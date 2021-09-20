@@ -2,9 +2,12 @@
 
 namespace App\Repository;
 
+use App\Entity\Client;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Hateoas\Representation\CollectionRepresentation;
+use Hateoas\Representation\PaginatedRepresentation;
 
 /**
  * @method User|null find($id, $lockMode = null, $lockVersion = null)
@@ -19,32 +22,28 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
-    // /**
-    //  * @return User[] Returns an array of User objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function getUsersByPage($page,$limit = 10): PaginatedRepresentation
     {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('u.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?User
-    {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $max = 10;
+
+        $users =  $this->createQueryBuilder('a')
+            ->setFirstResult(($page*$max)-$max)
+            ->setMaxResults($max)
+            ->orderBy('a.id', 'ASC')->getQuery()->getResult();
+
+        $totalPage = $this->count([]) / $limit;
+
+        return new PaginatedRepresentation(
+            new CollectionRepresentation($users),
+            'api_users_list', // route
+            array(), // route parameters
+            $page,       // page number
+            $limit,      // limit
+            $totalPage,       // total pages
+            'page',  // page route parameter name, optional, defaults to 'page'
+            'limit', // limit route parameter name, optional, defaults to 'limit'
+            true  // generate relative URIs, optional, defaults to `false`
+        );
     }
-    */
 }

@@ -27,12 +27,26 @@ class ProductController extends AbstractController
      * @param SerializerInterface $serializer
      * @param Request $request
      * @return JsonResponse
-     *     @OA\Response(
+     *  @OA\Response(
      *     response=200,
      *     description="Returns the products list",
-     *     @OA\JsonContent(
-     *        type="array",
-     *        @OA\Items(ref=@Model(type=Product::class))
+     *    @OA\JsonContent(
+     *      @OA\Property(property="page",  description="Current page",  type="integer"),
+     *      @OA\Property(property="limit",description="Limite items per page", type="integer"),
+     *      @OA\Property(property="pages",description="number total page", type="integer"),
+     *       @OA\Property(property="_links",
+     *
+     *               @OA\Property(property="self", @OA\Property(property="href", type="string")),
+     *               @OA\Property(property="first", @OA\Property(property="href", type="string")),
+     *               @OA\Property(property="last", @OA\Property(property="href", type="string")),
+     *               @OA\Property(property="next", @OA\Property(property="href", type="string")),
+     *           ),
+     *      @OA\Property(property="_embedded",
+     *      @OA\Property(property="items",type="array",
+     *        @OA\Items(
+     *               ref=@Model(type=Product::class))
+     *          )
+     *       )
      *     )
      *
      * )
@@ -57,7 +71,6 @@ class ProductController extends AbstractController
         $page = $request->query->getInt('page');
         $limit = $request->query->getInt('limit');
 
-        $max = 10;
 
         /**
          * Fix number page default
@@ -65,7 +78,10 @@ class ProductController extends AbstractController
         if (!$page){
             $page = 1;
         }
-        $limit = 10;
+        if(!$limit){
+            $limit = 10;
+        }
+
         $products = $productRepository->getProductsByPage($page, $limit);
 
 

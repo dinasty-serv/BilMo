@@ -67,8 +67,7 @@ class ProductRepository extends ServiceEntityRepository
             $totalPage,       // total pages
             'page',  // page route parameter name, optional, defaults to 'page'
             'limit', // limit route parameter name, optional, defaults to 'limit'
-            true,   // generate relative URIs, optional, defaults to `false`
-            75       // total collection size, optional, defaults to `null`
+            true  // generate relative URIs, optional, defaults to `false`
         );
     }
 }

@@ -47,7 +47,4 @@ class UserVoter extends Voter
     {
         return $client === $user->getClient();
     }
-
-
-
 }
