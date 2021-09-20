@@ -4,7 +4,7 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
-        "php": ">=7.2.5",
+        "php": ">=7.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "composer/package-versions-deprecated": "1.11.99.2",
@@ -56,7 +56,8 @@
         "symfony/phpunit-bridge": "^5.3",
         "symfony/stopwatch": "^5.3",
         "symfony/var-dumper": "^5.3",
-        "symfony/web-profiler-bundle": "^5.3"
+        "symfony/web-profiler-bundle": "^5.3",
+      "ext-json": "*"
     },
     "config": {
         "optimize-autoloader": true,
@@ -81,6 +82,26 @@
         "symfony/polyfill-php72": "*"
     },
     "scripts": {
+        "prepare-test": [
+            "php bin/console doctrine:database:drop --if-exists --force --env=test",
+            "php bin/console doctrine:database:create --env=test",
+            "php bin/console doctrine:schema:update --force --env=test",
+            "php bin/console doctrine:fixtures:load -n --env=test",
+            "echo ===============================Start test======================================",
+            "php ./vendor/bin/phpunit"
+        ],
+        "prepare": [
+            "php bin/console doctrine:database:drop --if-exists --force",
+            "php bin/console doctrine:database:create",
+            "php bin/console doctrine:schema:update --force",
+            "php bin/console doctrine:fixtures:load -n"
+        ],
+        "prepare-dev": [
+            "php bin/console doctrine:database:drop --if-exists --force --env=dev",
+            "php bin/console doctrine:database:create --env=dev",
+            "php bin/console doctrine:schema:update --force --env=dev",
+            "php bin/console doctrine:fixtures:load -n --env=dev"
+        ],
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"

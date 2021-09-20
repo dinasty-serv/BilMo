@@ -5,8 +5,10 @@ namespace App\Controller;
 
 
 use App\Entity\User;
+use App\Repository\ClientRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,25 +29,68 @@ class UserController extends AbstractController
      *     methods={"GET"})
      * @param UserRepository $userRepository
      * @param SerializerInterface $serializer
-     *
+     * @param Request $request
      * @return JsonResponse
-     *      @OA\Response(
+     * @OA\Response(
      *     response=200,
-     *     description="Returns the list users",
-     *     @OA\JsonContent(
-     *        type="array",
-     *        @OA\Items(ref=@Model(type=User::class, groups={"get"}))
+     *     description="Returns the products list",
+     *    @OA\JsonContent(
+     *      @OA\Property(property="page",  description="Current page",  type="integer"),
+     *      @OA\Property(property="limit", description="Limite items per page", type="integer"),
+     *      @OA\Property(property="pages", description="number total page", type="integer"),
+     *      @OA\Property(property="_links",
+     *
+     *               @OA\Property(property="self", @OA\Property(property="href", type="string")),
+     *               @OA\Property(property="first", @OA\Property(property="href", type="string")),
+     *               @OA\Property(property="last", @OA\Property(property="href", type="string")),
+     *               @OA\Property(property="next", @OA\Property(property="href", type="string")),
+     *           ),
+     *      @OA\Property(property="_embedded",
+     *      @OA\Property(property="items",type="array",
+     *        @OA\Items(
+     *               ref=@Model(type=User::class)
+     *              )
+     *          )
+     *       )
      *     )
+     * )
+     * @OA\Parameter(
+     *     name="page",
+     *     in="query",
+     *     description="Numéro de page",
+     *     @OA\Schema(type="int")
+     * )
+     * @OA\Parameter(
+     *     name="limit",
+     *     in="query",
+     *     description="Numbers of items",
+     *     @OA\Schema(type="int")
      * )
      * @OA\Tag(name="Users")
      * @Security(name="Bearer")
      */
 
-    public function list(UserRepository $userRepository, SerializerInterface $serializer): Response
+    public function list(UserRepository $userRepository,SerializerInterface $serializer, Request $request): Response
     {
 
+        $page = $request->query->getInt('page');
+        $limit = $request->query->getInt('limit');
+
+
+        /**
+         * Fix number page default
+         */
+        if (!$page){
+            $page = 1;
+        }
+        if(!$limit){
+            $limit = 10;
+        }
+
+        $users = $userRepository->getUsersByPage($page, $limit);
+        $json =  $serializer->serialize($users, "json");
         return new JsonResponse(
-            $serializer->serialize($userRepository->findBy(['client' => $this->getUser()]), "json"),
+            $json,
             Response::HTTP_OK,
             [],
             true
@@ -63,12 +108,25 @@ class UserController extends AbstractController
      * @return JsonResponse
      *
      * @return Response
-     *     @return JsonResponse
-     *      @OA\Response(
+     *
+     *@OA\Response(
      *     response=200,
-     *     description="Return the user détails",
-     *     @Model(type=User::class, groups={"get"})
+     *     description="Update User object",
+     *     @OA\JsonContent(
+     *               ref=@Model(type=User::class)
+     *          )
+     *      )
      * )
+     *
+     * @OA\Response(
+     *     response=404,
+     *     description="Not found",
+     *
+     *  @OA\JsonContent(
+     *      @OA\Property(property="code", type="string"),
+     *      @OA\Property(property="message",  type="string"),
+     *        )
+     *   )
      * @OA\Tag(name="Users")
      * @Security(name="Bearer")
      */
@@ -96,21 +154,23 @@ class UserController extends AbstractController
      *
      * @return JsonResponse
      * @OA\Response(
+     *
      *     response=200,
      *     description="Update User object",
-     *     @Model(type=User::class, groups={"get"})
-     * )
-     *@OA\Parameter(
-     *     name="username",
-     *     in="path",
-     *     description="Username",
-     *     @OA\Schema(type="string")
-     * )
-     * @OA\Parameter(
-     *     name="email",
-     *     in="path",
-     *     description="Email",
-     *     @OA\Schema(type="string")
+     *
+     *      @OA\JsonContent(
+     *               ref=@Model(type=User::class)
+     *          )
+     *        )
+     *      )
+     *
+     *  @OA\RequestBody(
+     *     request="Pet",
+     *     description="Pet object that needs to be added to the store",
+     *     required=true,
+     *     @OA\JsonContent(
+     *     ref=@Model(type=User::class, groups={"write_user"})),
+     *
      * )
      * @OA\Tag(name="Users")
      * @Security(name="Bearer")
@@ -124,8 +184,7 @@ class UserController extends AbstractController
         ValidatorInterface $validator
     ): JsonResponse {
         $this->denyAccessUnlessGranted('check', $user);
-        var_dump($request->getContent());
-        die();
+
         $data = $serializer->deserialize($request->getContent(), User::class, 'json');
         $errors = $validator->validate($data);
         if ($errors->count() > 0) {
@@ -136,7 +195,7 @@ class UserController extends AbstractController
         $entityManager->flush();
         return new JsonResponse(
             $serializer->serialize($user, "json"),
-            Response::HTTP_NO_CONTENT,
+            Response::HTTP_OK,
             ["Location" => $urlGenerator->generate("api_users_detail", ["id" => $user->getId()])],
             true
         );
@@ -148,25 +207,23 @@ class UserController extends AbstractController
      * @param SerializerInterface $serializer
      * @param UrlGeneratorInterface $urlGenerator
      * @param ValidatorInterface $validator
+     * @return JsonResponse
+     * @OA\Response(
      *
-     *   @return JsonResponse
-     *      @OA\Response(
-     *     response=200,
-     *     description="Return User object created",
-     *     @Model(type=User::class, groups={"get"}))
+     *     response=201,
+     *     description="Create User object",
      *
-     * )
-     *@OA\Parameter(
-     *     name="username",
-     *     in="path",
-     *     description="Username",
-     *     @OA\Schema(type="string")
-     * )
-     * @OA\Parameter(
-     *     name="email",
-     *     in="path",
-     *     description="Email",
-     *     @OA\Schema(type="string")
+     *       @OA\JsonContent(
+     *               ref=@Model(type=User::class)
+     *          )
+     *        )
+     *      )
+     * @OA\RequestBody(
+     *     request="Pet",
+     *     description="Pet object that needs to be added to the store",
+     *     required=true,
+     *     @OA\JsonContent(ref=@Model(type=User::class, groups={"write_user"})),
+     *
      * )
      * @OA\Tag(name="Users")
      * @Security(name="Bearer")
@@ -204,7 +261,7 @@ class UserController extends AbstractController
      *
      * @return JsonResponse
      *     @OA\Response(
-     *     response=200,
+     *     response=204,
      *     description="No content",
      *
      * )
@@ -218,7 +275,6 @@ class UserController extends AbstractController
         $this->denyAccessUnlessGranted('check', $user);
         $entityManager->remove($user);
         $entityManager->flush();
-
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 }

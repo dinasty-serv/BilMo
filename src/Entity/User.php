@@ -4,11 +4,11 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
-use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 use OpenApi\Annotations as OA;
+use Hateoas\Configuration\Annotation as Hateoas;
+
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @Hateoas\Relation(
@@ -36,6 +36,7 @@ use OpenApi\Annotations as OA;
  *          absolute = true
  *      )
  * )
+ *
  */
 class User
 {
@@ -44,7 +45,7 @@ class User
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      * @Serializer\Groups({"get", "getlist"})
-     * @Serializer\Expose
+     *
      * @OA\Property(description="Unique ID")
      *
      */
@@ -55,10 +56,10 @@ class User
      * @Serializer\Groups({"get","write_user"})
      * @Assert\NotBlank
      * @Assert\Email(
-     *     message = "The email '{{ value }}' is not a valid email."
+     *     message = "l'adresse '{{ value }}' est pas un email valide !."
      * )
-     * @Serializer\Expose
-     *  * @OA\Property(description="Email user")
+     *
+     * @OA\Property(description="Email user")
      */
     private $email;
 
@@ -66,13 +67,13 @@ class User
      * @ORM\Column(type="string", length=255)
      * @Serializer\Groups({"get","write_user"})
      * @Assert\NotBlank
-     * @Serializer\Expose
-     *  * @OA\Property(description="Username")
+     * @OA\Property(description="Username")
      */
     private $username;
 
     /**
      * @ORM\ManyToOne(targetEntity=Client::class, inversedBy="Users")
+     * @Serializer\Exclude
      */
     private $client;
 
