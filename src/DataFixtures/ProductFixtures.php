@@ -22,7 +22,7 @@ class ProductFixtures extends Fixture
 
     public function load(ObjectManager $manager)
     {
-        for ($i = 0; $i < 10; $i++){
+        for ($i = 0; $i < 100; $i++){
             $product = new Product();
             $product->setName("Produit ".$i);
             $product->setDescription('Description du produit '.$i);

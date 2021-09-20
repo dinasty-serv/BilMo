@@ -6,9 +6,19 @@ use App\Repository\ProductRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-
+use OpenApi\Annotations as OA;
+use Hateoas\Configuration\Annotation as Hateoas;
 /**
  * @ORM\Entity(repositoryClass=ProductRepository::class)
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "api_product_detail",
+ *           parameters = { "id" = "expr(object.getId())" },
+ *           absolute = true
+ *      )
+ * )
+ *
  */
 class Product
 {
@@ -24,6 +34,7 @@ class Product
      * @ORM\Column(type="string", length=255)
      * @Groups({"getlist", "get"})
      * @Assert\NotBlank
+     * @OA\Property(description="Product name")
      */
     private $name;
 
@@ -31,6 +42,7 @@ class Product
      * @ORM\Column(type="text")
      * @Groups({"getlist", "get"})
      * @Assert\NotBlank
+     * @OA\Property(description="Product description")
      */
     private $description;
 
@@ -38,6 +50,7 @@ class Product
      * @ORM\Column(type="float")
      * @Groups({"getlist", "get"})
      * @Assert\NotBlank
+     * @OA\Property(description="Product price")
      */
     private $prix;
 

@@ -5,6 +5,8 @@ namespace App\Repository;
 use App\Entity\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Hateoas\Representation\CollectionRepresentation;
+use Hateoas\Representation\PaginatedRepresentation;
 
 /**
  * @method Product|null find($id, $lockMode = null, $lockVersion = null)
@@ -47,4 +49,26 @@ class ProductRepository extends ServiceEntityRepository
         ;
     }
     */
+    public function getProductsByPage($page,$limit = 10){
+        $max = 10;
+        $products =  $this->createQueryBuilder('a')
+            ->setFirstResult(($page*$max)-$max)
+            ->setMaxResults($max)
+            ->orderBy('a.id', 'ASC')->getQuery()->getResult();
+
+        $totalPage = $this->count([]) / $limit;
+
+        return new PaginatedRepresentation(
+            new CollectionRepresentation($products),
+            'api_product_list', // route
+            array(), // route parameters
+            $page,       // page number
+            $limit,      // limit
+            $totalPage,       // total pages
+            'page',  // page route parameter name, optional, defaults to 'page'
+            'limit', // limit route parameter name, optional, defaults to 'limit'
+            true,   // generate relative URIs, optional, defaults to `false`
+            75       // total collection size, optional, defaults to `null`
+        );
+    }
 }

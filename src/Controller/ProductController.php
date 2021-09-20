@@ -4,12 +4,19 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Repository\ProductRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
+use JMS\Serializer\SerializerInterface as SerializerInterface;
+
+/**
+ * Open API
+ */
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
 
 class ProductController extends AbstractController
 {
@@ -18,34 +25,83 @@ class ProductController extends AbstractController
      * @Route("/api/products", name="api_product_list", methods={"GET"})
      * @param ProductRepository $productRepository
      * @param SerializerInterface $serializer
+     * @param Request $request
      * @return JsonResponse
+     *     @OA\Response(
+     *     response=200,
+     *     description="Returns the products list",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=Product::class))
+     *     )
+     *
+     * )
+     * @OA\Parameter(
+     *     name="page",
+     *     in="query",
+     *     description="Numéro de page",
+     *     @OA\Schema(type="int")
+     * )
+     * @OA\Parameter(
+     *     name="limit",
+     *     in="query",
+     *     description="Numbers of items",
+     *     @OA\Schema(type="int")
+     * )
+     * @OA\Tag(name="Products")
+     * @Security(name="Bearer")
+     *
      */
-    public function list(ProductRepository $productRepository, SerializerInterface $serializer): JsonResponse
+    public function list(ProductRepository $productRepository, SerializerInterface $serializer, Request $request): JsonResponse
     {
+        $page = $request->query->getInt('page');
+        $limit = $request->query->getInt('limit');
+
+        $max = 10;
+
+        /**
+         * Fix number page default
+         */
+        if (!$page){
+            $page = 1;
+        }
+        $limit = 10;
+        $products = $productRepository->getProductsByPage($page, $limit);
+
+
+
         return new JsonResponse(
-            $serializer->serialize($productRepository->findAll(), "json", ["groups" => "getlist"]),
-            JsonResponse::HTTP_OK,
+            $serializer->serialize($products, "json"),
+            Response::HTTP_OK,
             [],
             true
         );
-
     }
 
     /**
-     * @Route("/api/product/{id}",
+     * @Route("/api/products/{id}",
      *     name="api_product_detail",
      *     methods={"GET"},
      *     requirements={"id"="\d+"})
+     *
+     * @return JsonResponse
+     *      * @OA\Response(
+     *     response=200,
+     *     description="Returns the product details",
+     *     @Model(type=Product::class)
+     * )
+     *
+     * @OA\Tag(name="Products")
+     * @Security(name="Bearer")
      */
-    public function product(Product $product, SerializerInterface $serializer):Response
+    public function item(Product $product, SerializerInterface $serializer):Response
     {
+
         return new JsonResponse(
-            $serializer->serialize($product, "json", ["groups" => "get"]),
-            JsonResponse::HTTP_OK,
+            $serializer->serialize($product, "json"),
+            Response::HTTP_OK,
             [],
             true
         );
-
-
     }
 }

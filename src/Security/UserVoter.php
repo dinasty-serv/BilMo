@@ -9,14 +9,12 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 class UserVoter extends Voter
 {
     // these strings are just invented: you can use anything
-    const DELETE = 'delete';
-    const EDIT = 'edit';
-    const ITEM = "idem";
+    const CHECK = 'check';
 
     protected function supports(string $attribute, $subject): bool
     {
         // if the attribute isn't one we support, return false
-        if (!in_array($attribute, [self::DELETE, self::EDIT, self::ITEM])) {
+        if (!in_array($attribute, [self::CHECK])) {
             return false;
         }
 
@@ -39,28 +37,13 @@ class UserVoter extends Voter
         $user = $subject;
 
         switch ($attribute) {
-            case self::DELETE:
-                return $this->canDelete($user, $client);
-            case self::EDIT:
-                return $this->canEdit($user, $client);
-            case self::ITEM:
-                return $this->canView($user, $client);
+            case self::CHECK:
+                return $this->check($user, $client);
         }
 
     }
 
-    private function canEdit(User $user, Client $client): bool
-    {
-        return $client === $user->getClient();
-
-    }
-
-    private function canView(User $user, Client $client): bool
-    {
-       return $client === $user->getClient();
-    }
-
-    private function canDelete(User $user, Client $client): bool
+    private function check(User $user, Client $client): bool
     {
         return $client === $user->getClient();
     }
