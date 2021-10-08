@@ -141,16 +141,16 @@ class Client implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getSalt()
     {
-        // TODO: Implement getSalt() method.
+
     }
 
     public function eraseCredentials()
     {
-        // TODO: Implement eraseCredentials() method.
+
     }
 
     public function __call($name, $arguments)
     {
-        // TODO: Implement @method string getUserIdentifier()
+
     }
 }

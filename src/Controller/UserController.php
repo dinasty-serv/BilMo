@@ -98,7 +98,7 @@ class UserController extends AbstractController
 
     }
     /**
-     * @Route("/api/users/{id}",
+     * @Route("/api/user/{id}",
      *     name="api_users_detail",
      *     methods={"GET"},
      *     requirements={"id"="\d+"})
@@ -144,7 +144,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/api/users/{id}", name="api_user_edit", methods={"PUT"})
+     * @Route("/api/user/{id}", name="api_user_edit", methods={"PUT"})
      * @param User $user
      * @param Request $request
      * @param EntityManagerInterface $entityManager
@@ -186,10 +186,14 @@ class UserController extends AbstractController
         $this->denyAccessUnlessGranted('check', $user);
 
         $data = $serializer->deserialize($request->getContent(), User::class, 'json');
+
         $errors = $validator->validate($data);
         if ($errors->count() > 0) {
             return new JsonResponse($serializer->serialize($errors, 'json'), Response::HTTP_BAD_REQUEST, [], true);
         }
+
+        $user->setUsername($data->getUsername());
+        $user->setEmail($data->getEmail());
 
         $entityManager->persist($user);
         $entityManager->flush();
@@ -201,7 +205,7 @@ class UserController extends AbstractController
         );
     }
     /**
-     * @Route("/api/users", name="api_user_post", methods={"POST"})
+     * @Route("/api/user", name="api_user_post", methods={"POST"})
      * @param Request $request
      * @param EntityManagerInterface $entityManager
      * @param SerializerInterface $serializer
@@ -255,7 +259,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/api/users/{id}", name="api_user_delete", methods={"DELETE"})
+     * @Route("/api/user/{id}", name="api_user_delete", methods={"DELETE"})
      * @param User $user
      * @param EntityManagerInterface $entityManager
      *

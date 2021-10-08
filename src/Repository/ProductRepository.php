@@ -50,7 +50,7 @@ class ProductRepository extends ServiceEntityRepository
     }
     */
     public function getProductsByPage($page,$limit = 10){
-        $max = 10;
+        $max = $limit;
         $products =  $this->createQueryBuilder('a')
             ->setFirstResult(($page*$max)-$max)
             ->setMaxResults($max)
