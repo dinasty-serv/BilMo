@@ -25,7 +25,7 @@ class UserRepository extends ServiceEntityRepository
     public function getUsersByPage($page,$limit = 10): PaginatedRepresentation
     {
 
-        $max = 10;
+        $max = $limit;
 
         $users =  $this->createQueryBuilder('a')
             ->setFirstResult(($page*$max)-$max)

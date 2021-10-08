@@ -27,6 +27,9 @@ class ProductController extends AbstractController
      * @param SerializerInterface $serializer
      * @param Request $request
      * @return JsonResponse
+     *
+     * @OA\Get(description="Get list products")
+     *
      *  @OA\Response(
      *     response=200,
      *     description="Returns the products list",
@@ -63,6 +66,7 @@ class ProductController extends AbstractController
      *     @OA\Schema(type="int")
      * )
      * @OA\Tag(name="Products")
+     *
      * @Security(name="Bearer")
      *
      */
@@ -95,11 +99,12 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @Route("/api/products/{id}",
+     * @Route("/api/product/{id}",
      *     name="api_product_detail",
      *     methods={"GET"},
      *     requirements={"id"="\d+"})
      *
+     * @OA\Get(description="Get product détail")
      * @return JsonResponse
      *      * @OA\Response(
      *     response=200,

@@ -16,7 +16,8 @@ use Hateoas\Configuration\Annotation as Hateoas;
  *      href=@Hateoas\Route(
  *          "api_users_detail",
  *          parameters = {"id" = "expr(object.getId())"},
- *          absolute = true
+ *          absolute = true,
+ *
  *      )
  * )
  *
@@ -36,6 +37,7 @@ use Hateoas\Configuration\Annotation as Hateoas;
  *          absolute = true
  *      )
  * )
+ *
  *
  */
 class User
