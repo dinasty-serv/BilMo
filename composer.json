@@ -87,6 +87,7 @@
             "php bin/console doctrine:database:create --env=test",
             "php bin/console doctrine:schema:update --force --env=test",
             "php bin/console doctrine:fixtures:load -n --env=test",
+            "php bin/console lexik:jwt:generate-keypair --overwrite",
             "echo ===============================Start test======================================",
             "php ./vendor/bin/phpunit"
         ],
@@ -94,13 +95,15 @@
             "php bin/console doctrine:database:drop --if-exists --force",
             "php bin/console doctrine:database:create",
             "php bin/console doctrine:schema:update --force",
-            "php bin/console doctrine:fixtures:load -n"
+            "php bin/console doctrine:fixtures:load -n",
+            "php bin/console lexik:jwt:generate-keypair --overwrite"
         ],
         "prepare-dev": [
             "php bin/console doctrine:database:drop --if-exists --force --env=dev",
             "php bin/console doctrine:database:create --env=dev",
             "php bin/console doctrine:schema:update --force --env=dev",
-            "php bin/console doctrine:fixtures:load -n --env=dev"
+            "php bin/console doctrine:fixtures:load -n --env=dev",
+            "php bin/console lexik:jwt:generate-keypair --overwrite"
         ],
         "auto-scripts": {
             "cache:clear": "symfony-cmd",

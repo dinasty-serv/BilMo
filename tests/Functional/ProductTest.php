@@ -95,7 +95,7 @@ class ProductTest extends WebTestCase
 
         $product= $em->getRepository(Product::class)->findOneBy(array(), null, $limit = 1, $offset = null);
 
-        $client->request('GET', '/api/products/' . $product->getId());
+        $client->request('GET', '/api/product/' . $product->getId());
 
         $this->assertEquals(401, $client->getResponse()->getStatusCode());
     }
@@ -111,7 +111,7 @@ class ProductTest extends WebTestCase
 
         $product= $em->getRepository(Product::class)->findOneBy(array(), null, $limit = 1, $offset = null);
 
-        $client->request('GET', '/api/products/' . $product->getId());
+        $client->request('GET', '/api/product/' . $product->getId());
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
     }

@@ -43,7 +43,7 @@ class ClientTest extends WebTestCase
 
         $client->request(
             'POST',
-            'api/users',
+            'api/user',
             array(),
             array(),
             array('CONTENT_TYPE' => 'application/json', 'ACCEPT' => 'application/json'),
@@ -69,7 +69,7 @@ class ClientTest extends WebTestCase
 
         $client->request(
             'POST',
-            'api/users',
+            'api/user',
             array(),
             array(),
             array('CONTENT_TYPE' => 'application/json', 'ACCEPT' => 'application/json'),
@@ -98,7 +98,7 @@ class ClientTest extends WebTestCase
 
         $client->request(
             'PUT',
-            'api/users/'.$user->getId(),
+            'api/user/'.$user->getId(),
             array("id" => $user->getId()),
             array(),
             array('CONTENT_TYPE' => 'application/json', 'ACCEPT' => 'application/json'),
@@ -125,7 +125,7 @@ class ClientTest extends WebTestCase
 
         $client->request(
             'DELETE',
-            'api/users/'.$user->getId(),
+            'api/user/'.$user->getId(),
             array(),
             array(),
             array('CONTENT_TYPE' => 'application/json', 'ACCEPT' => 'application/json'),
