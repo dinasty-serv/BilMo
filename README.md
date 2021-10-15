@@ -1,4 +1,7 @@
 
+[![SymfonyInsight](https://insight.symfony.com/projects/02376594-16c3-4cbb-b9e6-5aab067d2719/big.svg)](https://insight.symfony.com/projects/02376594-16c3-4cbb-b9e6-5aab067d2719)
+
+
 Lien du projet GITHUB: https://github.com/dinasty-serv/BilMo/tree/master
 
 
