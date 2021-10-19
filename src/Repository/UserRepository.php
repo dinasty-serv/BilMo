@@ -22,12 +22,15 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
-    public function getUsersByPage($page,$limit = 10): PaginatedRepresentation
+    public function getUsersByPage($page,$limit = 10, $user): PaginatedRepresentation
     {
 
         $max = $limit;
 
+
+
         $users =  $this->createQueryBuilder('a')
+            ->where('a.client ='.$user)
             ->setFirstResult(($page*$max)-$max)
             ->setMaxResults($max)
             ->orderBy('a.id', 'ASC')->getQuery()->getResult();

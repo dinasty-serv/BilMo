@@ -86,8 +86,10 @@ class UserController extends AbstractController
         if(!$limit){
             $limit = 10;
         }
+        $user = $this->getUser();
 
-        $users = $userRepository->getUsersByPage($page, $limit);
+
+        $users = $userRepository->getUsersByPage($page, $limit, $user->getId());
         $json =  $serializer->serialize($users, "json");
         return new JsonResponse(
             $json,
